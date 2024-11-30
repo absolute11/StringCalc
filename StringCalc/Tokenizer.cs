@@ -41,10 +41,10 @@ namespace StringCalc
                         currentToken = string.Empty;
                     }
 
-                    // Обработка отрицательных чисел
+                    
                     if (ch == '-' && (previousChar == null || previousChar == '(' || IsOperator(previousChar.Value)))
                     {
-                        currentToken += ch; // Начало отрицательного числа
+                        currentToken += ch; 
                     }
                     else
                     {
@@ -67,10 +67,7 @@ namespace StringCalc
             return tokens;
         }
 
-        private bool IsNegativeSign(char currentChar, char? previousChar)
-        {
-            return currentChar == '-' && (previousChar == null || previousChar == '(' || IsOperator(previousChar.Value));
-        }
+      
 
         private bool IsOperator(char ch)
         {

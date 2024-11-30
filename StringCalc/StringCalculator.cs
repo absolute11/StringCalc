@@ -81,7 +81,7 @@ namespace StringCalc
                     {
                         if (token == "-" && (i == 0 || tokens[i - 1] == "(" || IsOperator(tokens[i - 1])))
                         {
-                            // Отрицательное число, следующий токен должен быть числом
+                           
                             expectOperand = true;
                         }
                         else
