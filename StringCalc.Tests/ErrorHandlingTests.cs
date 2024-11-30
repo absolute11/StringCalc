@@ -39,13 +39,7 @@ namespace StringCalc.Tests
             Assert.Throws<InvalidOperationException>(() => calculator.Calculate(""));
         }
 
-        [Fact]
-        public void Should_ThrowException_For_ExtraNumbers()
-        {
-            var calculator = new StringCalculator();
 
-            Assert.Throws<InvalidOperationException>(() => calculator.Calculate("2 3 + 4"));
-        }
         [Fact]
         public void Should_ThrowException_For_UnsupportedOperation()
         {

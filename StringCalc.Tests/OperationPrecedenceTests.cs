@@ -62,5 +62,34 @@ namespace StringCalc.Tests
 
             Assert.Equal(12, result); 
         }
+        [Fact]
+        public void Should_Handle_MissingOperatorBetweenNumberAndParenthesis()
+        {
+            var calculator = new StringCalculator();
+
+            var result = calculator.Calculate("2(6 - (5 - 2)/3) / 4");
+
+            Assert.Equal(2.5, result);
+        }
+
+        [Fact]
+        public void Should_Handle_MissingOperatorBetweenParenthesisAndNumber()
+        {
+            var calculator = new StringCalculator();
+
+            var result = calculator.Calculate("(2 + 3)4");
+
+            Assert.Equal(20, result);
+        }
+
+        [Fact]
+        public void Should_Handle_MissingOperatorBetweenNumberAndNumber()
+        {
+            var calculator = new StringCalculator();
+
+            var result = calculator.Calculate("2 3 + 4");
+
+            Assert.Equal(10, result); 
+        }
     }
 }
