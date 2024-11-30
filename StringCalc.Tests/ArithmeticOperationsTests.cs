@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StringCalc;
 
 namespace StringCalc.Tests
 {
@@ -64,10 +65,10 @@ namespace StringCalc.Tests
         [Fact]
         public async Task Should_ThrowException_When_DividingByZero()
         {
-            // Arrange
+            
             var calculator = new StringCalculator();
 
-            // Act & Assert
+            
             await Assert.ThrowsAsync<DivideByZeroException>(async () => await calculator.CalculateAsync("10 / 0"));
         }
     }
