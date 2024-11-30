@@ -38,7 +38,7 @@ namespace StringCalc.Tests
            
             var result = calculator.Calculate("2 + 3 * 4 - 5 / 2");
 
-            Assert.Equal(12.5, result);
+            Assert.Equal(11.5, result);
         }
 
         [Fact]
