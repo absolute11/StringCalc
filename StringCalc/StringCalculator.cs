@@ -6,11 +6,23 @@ namespace StringCalc
 {
     public class StringCalculator
     {
+        private readonly Tokenizer _tokenizer;
+        private readonly PostfixConverter _postfixConverter;
+        private readonly PostfixEvaluator _postfixEvaluator;
+
+        public StringCalculator()
+        {
+            _tokenizer = new Tokenizer();
+            _postfixConverter = new PostfixConverter();
+            _postfixEvaluator = new PostfixEvaluator();
+        }
+
         public double Calculate(string expression)
         {
-           
-            var tokens = expression.Split(' ');
-            if (tokens.Length == 3)
+            var tokens = _tokenizer.Tokenize(expression);
+            ValidateTokens(tokens);
+
+            if (tokens.Count == 3)
             {
                 var num1 = double.Parse(tokens[0]);
                 var num2 = double.Parse(tokens[2]);
@@ -27,8 +39,8 @@ namespace StringCalc
             }
 
             
-            var postfix = ConvertToPostfix(expression);
-            return EvaluatePostfix(postfix);
+            var postfix = _postfixConverter.ConvertToPostfix(tokens);
+            return _postfixEvaluator.Evaluate(postfix);
         }
 
         public async Task<double> CalculateAsync(string expression)
@@ -36,45 +48,59 @@ namespace StringCalc
             return await Task.Run(() => Calculate(expression));
         }
 
-        private List<string> ConvertToPostfix(string expression)
+        private void ValidateTokens(List<string> tokens)
         {
-            var output = new List<string>();
-            var operators = new Stack<string>();
-            var precedence = new Dictionary<string, int>
-            {
-                { "+", 1 },
-                { "-", 1 },
-                { "*", 2 },
-                { "/", 2 }
-            };
+            int parenthesesBalance = 0;
+            bool expectOperand = true;
 
-            var tokens = Tokenize(expression);
-            foreach (var token in tokens)
+            for (int i = 0; i < tokens.Count; i++)
             {
-                if (double.TryParse(token, out _))
+                var token = tokens[i];
+
+                if (token == "(")
                 {
-                    output.Add(token);
+                    parenthesesBalance++;
+                    expectOperand = true;
+                    continue;
                 }
-                else if (token == "(")
+
+                if (token == ")")
                 {
-                    operators.Push(token);
-                }
-                else if (token == ")")
-                {
-                    while (operators.Count > 0 && operators.Peek() != "(")
+                    parenthesesBalance--;
+                    if (parenthesesBalance < 0)
                     {
-                        output.Add(operators.Pop());
+                        throw new InvalidOperationException("Несбалансированные скобки.");
                     }
-                    operators.Pop();
+                    expectOperand = false;
+                    continue;
                 }
-                else if (precedence.ContainsKey(token))
+
+                if (IsOperator(token))
                 {
-                    while (operators.Count > 0 && precedence.ContainsKey(operators.Peek()) &&
-                           precedence[operators.Peek()] >= precedence[token])
+                    if (expectOperand)
                     {
-                        output.Add(operators.Pop());
+                        if (token == "-" && (i == 0 || tokens[i - 1] == "(" || IsOperator(tokens[i - 1])))
+                        {
+                            // Отрицательное число, следующий токен должен быть числом
+                            expectOperand = true;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Оператор встречен без числа перед ним.");
+                        }
                     }
-                    operators.Push(token);
+                    else
+                    {
+                        expectOperand = true;
+                    }
+                }
+                else if (IsNumber(token))
+                {
+                    if (!expectOperand)
+                    {
+                        throw new InvalidOperationException("Два числа подряд без оператора.");
+                    }
+                    expectOperand = false;
                 }
                 else
                 {
@@ -82,74 +108,25 @@ namespace StringCalc
                 }
             }
 
-            while (operators.Count > 0)
+            if (parenthesesBalance != 0)
             {
-                output.Add(operators.Pop());
+                throw new InvalidOperationException("Несбалансированные скобки.");
             }
 
-            return output;
+            if (expectOperand)
+            {
+                throw new InvalidOperationException("Выражение заканчивается оператором.");
+            }
         }
 
-        private double EvaluatePostfix(List<string> postfix)
+        private bool IsOperator(string token)
         {
-            var stack = new Stack<double>();
-
-            foreach (var token in postfix)
-            {
-                if (double.TryParse(token, out double number))
-                {
-                    stack.Push(number);
-                }
-                else
-                {
-                    var b = stack.Pop();
-                    var a = stack.Pop();
-
-                    stack.Push(token switch
-                    {
-                        "+" => a + b,
-                        "-" => a - b,
-                        "*" => a * b,
-                        "/" => b != 0 ? a / b : throw new DivideByZeroException("Деление на ноль."),
-                        _ => throw new InvalidOperationException($"Неизвестная операция: {token}")
-                    });
-                }
-            }
-
-            return stack.Pop();
+            return token == "+" || token == "-" || token == "*" || token == "/";
         }
 
-        private List<string> Tokenize(string expression)
+        private bool IsNumber(string token)
         {
-            var tokens = new List<string>();
-            var currentToken = string.Empty;
-
-            foreach (var ch in expression)
-            {
-                if (char.IsWhiteSpace(ch)) continue;
-
-                if (char.IsDigit(ch) || ch == '.')
-                {
-                    currentToken += ch;
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(currentToken))
-                    {
-                        tokens.Add(currentToken);
-                        currentToken = string.Empty;
-                    }
-
-                    tokens.Add(ch.ToString());
-                }
-            }
-
-            if (!string.IsNullOrEmpty(currentToken))
-            {
-                tokens.Add(currentToken);
-            }
-
-            return tokens;
+            return double.TryParse(token, out _);
         }
     }
 }
