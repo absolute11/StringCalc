@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Globalization;
 
 namespace StringCalc
 {
@@ -11,7 +10,7 @@ namespace StringCalc
 
             foreach (var token in postfix)
             {
-                if (double.TryParse(token, out double number))
+                if (double.TryParse(token, NumberStyles.Float, CultureInfo.InvariantCulture, out double number))
                 {
                     HandleNumber(stack, number);
                 }
@@ -36,16 +35,29 @@ namespace StringCalc
 
         private void HandleOperator(Stack<double> stack, string operation)
         {
-            if (stack.Count < 2)
+            if (operation == "u-")
             {
-                throw new InvalidOperationException("Недостаточно чисел для выполнения операции.");
+                if (stack.Count < 1)
+                {
+                    throw new InvalidOperationException("Недостаточно чисел для выполнения унарной операции.");
+                }
+
+                var a = stack.Pop();
+                stack.Push(-a);
             }
+            else
+            {
+                if (stack.Count < 2)
+                {
+                    throw new InvalidOperationException("Недостаточно чисел для выполнения операции.");
+                }
 
-            var b = stack.Pop();
-            var a = stack.Pop();
+                var b = stack.Pop();
+                var a = stack.Pop();
 
-            var result = PerformOperation(a, b, operation);
-            stack.Push(result);
+                var result = PerformOperation(a, b, operation);
+                stack.Push(result);
+            }
         }
 
         private double PerformOperation(double a, double b, string operation)

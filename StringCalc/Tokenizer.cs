@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace StringCalc
 {
@@ -33,10 +34,10 @@ namespace StringCalc
 
                 if (char.IsDigit(ch) || ch == '.')
                 {
-                    // Проверяем, нужно ли вставить умножение перед текущей цифрой
+                    
                     if (!string.IsNullOrEmpty(currentToken))
                     {
-                        // Если currentToken не пустой, то продолжаем собирать число
+                      
                         currentToken += ch;
                     }
                     else
@@ -56,7 +57,7 @@ namespace StringCalc
                         currentToken = string.Empty;
                     }
 
-                    // Проверка на необходимость вставки умножения
+                    
                     if (NeedInsertMultiplication(tokens, ch))
                     {
                         tokens.Add("*");
@@ -100,7 +101,7 @@ namespace StringCalc
 
         private bool IsNumber(string token)
         {
-            return double.TryParse(token, out _);
+            return double.TryParse(token, NumberStyles.Number, CultureInfo.InvariantCulture, out _);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace StringCalc
@@ -24,8 +25,8 @@ namespace StringCalc
 
             if (tokens.Count == 3)
             {
-                var num1 = double.Parse(tokens[0]);
-                var num2 = double.Parse(tokens[2]);
+                var num1 = double.Parse(tokens[0], CultureInfo.InvariantCulture);
+                var num2 = double.Parse(tokens[2], CultureInfo.InvariantCulture);
                 var operation = tokens[1];
 
                 return operation switch
@@ -126,7 +127,7 @@ namespace StringCalc
 
         private bool IsNumber(string token)
         {
-            return double.TryParse(token, out _);
+            return double.TryParse(token, NumberStyles.Number, CultureInfo.InvariantCulture, out _);
         }
     }
 }
