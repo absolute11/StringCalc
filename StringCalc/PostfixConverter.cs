@@ -10,7 +10,7 @@ namespace StringCalc
             { "-", 1 },
             { "*", 2 },
             { "/", 2 },
-            { "u-", 3 } // Унарный минус имеет более высокий приоритет
+            { "u-", 3 } 
         };
 
         public List<string> ConvertToPostfix(List<string> tokens)
@@ -36,10 +36,10 @@ namespace StringCalc
                 }
                 else if (IsOperator(token))
                 {
-                    // Проверка на унарный минус
+                   
                     if (token == "-" && (i == 0 || tokens[i - 1] == "(" || IsOperator(tokens[i - 1])))
                     {
-                        token = "u-"; // Заменяем на унарный минус
+                        token = "u-"; 
                     }
                     HandleOperator(token, operators, output);
                 }
